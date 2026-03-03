@@ -11,21 +11,21 @@ a. 设计基于 Kafka 的实时数据处理架构
 b. 选择 Flink 并编写伪代码
 框架选择：Flink
 伪代码如下：
-# 计算玩家实时在线时长 
+//计算玩家实时在线时长 
 DataStream = env.addSource(KafkaSource) # 从Kafka接入数据
 .map(log -> parseLogToEvent(log)) 
 
-# 为每个玩家ID生成在线事件流，登录为开始，退出为结束
+//为每个玩家ID生成在线事件流，登录为开始，退出为结束
 KeyedStream<Event, String> keyedByPlayer = dataStream
 .filter(event -> event.type in (“login”, “logout”))
 .keyBy(event -> event.playerId);
 
-#定义会话窗口，会话间隔超30分钟窗口关闭
+//定义会话窗口，会话间隔超30分钟窗口关闭
 DataStream<SessionResult> onlineTimeStream = keyedByPlayer
 .window(EventTimeSessionWindows.withGap(Time.minutes(30)))
 .process(new SessionProcessFunction()); // 计算会话时长
 
-#计算实时付费金额 
+//计算实时付费金额 
 DataStream<PaymentResult> paymentStream = dataStream
 .filter(event -> event.type == “payment”)
 .keyBy(event -> event.playerId) 
